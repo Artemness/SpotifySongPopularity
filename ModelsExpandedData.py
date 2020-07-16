@@ -64,14 +64,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 import lightgbm as lgb
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.wrappers.scikit_learn import KerasRegressor
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import KFold
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
+from sklearn.linear_model import Lasso, BayesianRidge
 
 #Create Logistic Regression and Train:
 lr = LinearRegression()
@@ -134,55 +127,11 @@ gbm_predict = gbm.predict(X_test)
 gbm_MAE = metrics.mean_absolute_error(y_test, gbm_predict)
 print('Mean Absolute Error for GBM:' + str(gbm_MAE))
 
-test_pred = np.expm1(gbm.predict(X_test, num_iteration=gbm.best_iteration_))
-print('The MAE of prediction is:', round(metrics.mean_absolute_error(test_pred, y_test),2))
+with open('gbm.pickle','wb') as f:
+    pickle.dump(gbm, f)
 
-
-#Evaluating a Keras Model:
-df = pd.read_csv('expandeddata.csv')
-df_model = df[['artists', 'genres', 'tempo','energy',
-       'danceability', 'loudness', 'liveness', 'valence', 'duration_ms',
-       'acousticness', 'speechiness', 'popularity']]
-
-dataset = pd.get_dummies(df_model, prefix='', prefix_sep='')
-train_dataset = dataset.sample(frac=0.8,random_state=0)
-test_dataset = dataset.drop(train_dataset.index)
-
-train_stats = train_dataset.describe()
-train_stats.pop("popularity")
-train_stats = train_stats.transpose()
-print(train_stats)
-
-train_labels = train_dataset.pop('popularity')
-test_labels = test_dataset.pop('popularity')
-
-def norm(x):
-  return (x - train_stats['mean']) / train_stats['std']
-
-
-normed_train_data = norm(train_dataset)
-normed_test_data = norm(test_dataset)
-
-def build_model():
-  model = keras.Sequential([
-    layers.Dense(64, activation='relu', input_shape=[len(train_dataset.keys())]),
-    layers.Dense(64, activation='relu'),
-    layers.Dense(1)
-  ])
-
-  optimizer = tf.keras.optimizers.RMSprop(0.001)
-
-  model.compile(loss='mae',
-                optimizer=optimizer,
-                metrics=['mae', 'mse'])
-  return model
-
-kerasmodel = build_model()
-
-EPOCHS = 20000
-
-history = keras.fit(
-  normed_train_data, train_labels,
-  epochs=EPOCHS, validation_split = 0.2, verbose=1)
-
-loss, mae, mse = keras.evaluate(normed_test_data, test_labels, verbose=2)
+print('Mean Absolute Error for Multi Linear Regression:' + str(lr_MAE))
+print('Mean Absolute Error for Gradient Boosting:' + str(gbc_MAE))
+print('Mean Absolute Error for Decision Tree:' + str(dt_MAE))
+print('Mean Absolute Error for Random Forest:' + str(rf_MAE))
+print('Mean Absolute Error for GBM:' + str(gbm_MAE))

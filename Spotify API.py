@@ -8,7 +8,7 @@ import json
 import pickle
 
 client_id= '58d8eea6f9a84b21a79450019b32eb53'
-secretdir = ('./secret.txt')
+secretdir = ('./apisecret.txt')
 with open(secretdir) as f:
     client_secret = f.read().strip()
 print(client_secret)
@@ -153,42 +153,10 @@ trackpop = r3.json()
 sampledf['artist'].iloc[0] = artist_stats['name']
 
 #updating Genres of
-try:
-    genres = artist_stats['genres']
-except:
-    pass
-genre = 'NA'
-if 'pop' in genres:
-    genre = 'pop'
-elif 'hip hop' in genres:
-    genre = 'hip hop'
-elif 'rock' in genres:
-    genre = 'rock'
-elif 'alternative' in genres:
-    genre = 'alternative'
-else:
-    try:
-        genre = genres[0]
-    except:
-        pass
-
-if 'dance pop' in genres:
-    genre = 'dance pop'
-
-if 'canadian pop' in genres:
-    genre = 'canadian pop'
-
-if 'barbadian pop' in genres:
-    genre = 'barbadian pop'
-
-if 'boy band' in genres:
-    genre = 'boy band'
-
-if 'electropop' in genres:
-    genre = 'electropop'
+genres = artist_stats['genres']
 
 #sample.update({'genre' : genre})
-sampledf['genre'].iloc[0] = genre
+sampledf['genre'].iloc[0] = str(genres)
 
 #adding Beats per minute to the Sample:
 #sample.update({'beats_per_minute': round(track_stats['tempo'],0)})
@@ -214,7 +182,7 @@ sampledf['liveness'].iloc[0] = track_stats['liveness']
 sampledf['valence'].iloc[0] = track_stats['valence']
 
 #Adding length to the Sample:
-lentrack = round(track_stats['duration_ms']/1000,0)
+lentrack = round(track_stats['duration_ms'])
 #sample.update({'length' : lentrack})
 sampledf['length'].iloc[0] = lentrack
 
@@ -230,10 +198,10 @@ samplepopularity = trackpop['popularity']
 sampleyear = trackpop['album']['release_date'][:4]
 
 
-pickle_in = open('linearregression.pickle','rb')
-lr = pickle.load(pickle_in)
+pickle_in = open('gbm.pickle','rb')
+gbm = pickle.load(pickle_in)
 
-file = open("artist.obj",'rb')
+file = open("artistexpanded.obj",'rb')
 artistle = pickle.load(file)
 file.close()
 try:
@@ -241,7 +209,7 @@ try:
 except:
     sampledf['artist'] = 0
 
-file = open("genre.obj",'rb')
+file = open("genreexpanded.obj",'rb')
 genristle = pickle.load(file)
 file.close()
 try:
@@ -254,4 +222,4 @@ print(track_name)
 print(artist)
 print(sampleyear)
 print(samplepopularity)
-print(lr.predict(sampledf.values))
+print(gbm.predict(sampledf.values))
