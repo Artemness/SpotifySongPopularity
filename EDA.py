@@ -43,20 +43,20 @@ fig1.savefig('Top 10 Genres Percentages.png', transparent=True)
 
 #Dissecting the Top Artists from the data:
 artists = df['artist'].value_counts().head(10)
+plt.rcParams.update({
+    "lines.color": "white",
+    "patch.edgecolor": "white",
+    "text.color": "grey",
+    "axes.facecolor": "black",
+    "axes.edgecolor": "grey",
+    "axes.labelcolor": "white",
+    "xtick.color": "white",
+    "ytick.color": "white"})
 fig2, ax2 = plt.subplots()
 custom_cycler = (cycler(color=['#04F907']))
 ax2.set_prop_cycle(custom_cycler)
 ax2.bar(x=artists.index, height=artists)
 plt.title('Top 10 Artists')
-plt.rcParams.update({
-    "lines.color": "white",
-    "patch.edgecolor": "white",
-    "text.color": "grey",
-    "axes.facecolor": "white",
-    "axes.edgecolor": "grey",
-    "axes.labelcolor": "white",
-    "xtick.color": "white",
-    "ytick.color": "white"})
 plt.xticks(rotation='45')
 plt.show()
 fig2 = ax2.get_figure()
